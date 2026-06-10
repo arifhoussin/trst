@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Digital TV - Adsterra Rotation</title>
+  <!-- Video.js CSS -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  
+  <style>
+    /* --- বেসিক স্টাইল --- */
+    body { background-color: #0f1216; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
+    .main-container { max-width: 1100px; margin: 0 auto; display: flex; gap: 20px; background: #181c24; padding: 20px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+    .player-section { flex: 7; display: flex; flex-direction: column; position: relative; }
+
+    /* --- ১. অ্যাডভার্টাইজমেন্ট ওভারলে (মেইন ফ্রেমে) --- */
+    #ad-overlay {
+      display: none; /* শুরুতে হাইড */
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+
+    .ad-container {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      /* ডাইনামিক সাইজের জন্য */
+      min-width: 300px;
+      min-height: 250px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: auto;
+    }
+
+    /* ১০টি আলাদা স্লট (ডিফল্টভাবে সব লুকানো থাকবে) */
+    .ad-slot {
+      display: none; /* সব স্লট লুকানো */
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+    .ad-slot.active-slot {
+      display: block; /* শুধু একটিভ স্লট দেখাবে */
+    }
+
+    /* ক্লোজ বাটন */
+    .ad-close-btn {
+      margin-top: 15px;
+      padding: 8px 25px;
+      background: #ff0000;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      opacity: 0.6; pointer-events: none;
+      transition: 0.3s;
+    }
+    .ad-close-btn.active { opacity: 1; pointer-events: all; background: #28a745; }
+
+    /* --- অন্যান্য স্টাইল (লোগো, প্লেয়ার) --- */
+    .watermark-logo { position: absolute; top: 70px; right: 25px; width: 60px; z-index: 100; opacity: 0.9; pointer-events: none; }
+    .live-status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #20252e; padding: 8px 15px; border-radius: 8px; border: 1px solid #2a303c; }
+    .live-badge { background: #ff0000; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+    .brand-title { font-size: 20px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(0,168,255,0.8); }
+    .blink-dot { width: 8px; height: 8px; background: white; border-radius: 50%; animation: blinker 1.5s infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+    .video-js { width: 100% !important; height: 480px !important; border-radius: 12px; border: 1px solid #2a303c; }
+    .sidebar-section { flex: 3; background: #13161c; border-radius: 12px; padding: 15px; max-height: 600px; overflow-y: auto; }
+    .channel-item { padding: 10px; background: #1b2029; margin-bottom: 8px; border-radius: 6px; cursor: pointer; color: #ccc; display: flex; gap: 10px; align-items: center; }
+    .channel-item:hover { background: #252b36; color: #fff; }
+    .channel-item.active { background: #007bff; color: #fff; }
+
+    @media (max-width: 768px) {
+      .main-container { flex-direction: column; padding: 5px; }
+      .video-js { height: 260px !important; }
+      #ad-overlay { border-radius: 8px; }
+      .watermark-logo { width: 40px; top: 60px; right: 10px; }
+      .brand-title { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="main-container">
+  <div class="player-section">
+    
+    <!-- লাইভ বার -->
+    <div class="live-status-bar">
+      <div class="live-badge"><span class="blink-dot"></span> LIVE</div>
+      <div class="brand-title">HR DIGITAL TV</div>
+      <div style="color:#bbb;">12,405 watching</div>
+    </div>
+
+    <!-- লোগো -->
+    <img src="https://content.jdmagicbox.com/comp/rajahmundry/p3/9999px883.x883.220831092515.v7p3/catalogue/hr-tv-human-rights-tv-railway-station-road-rajahmundry-1urlpav2vp-250.jpg" class="watermark-logo">
+
+    <!-- ============================================ -->
+    <!-- ২. ১০টি অ্যাডের মেইন সেকশন (Adsterra) -->
+    <!-- ============================================ -->
+    <div id="ad-overlay">
+      <div class="ad-container">
+        
+        <!-- Slot 1: Social Bar -->
+        <div id="ad-slot-1" class="ad-slot">
+          <h3>Ad 1: Social Bar</h3>
+          <!-- নিচে Social Bar কোড বসান -->
+          <div style="padding:20px; color:black;">(<script src="https://pl29667212.effectivecpmnetwork.com/ee/0d/bc/ee0dbcdd53de834ddb99fb3c36ce9d3e.js"></script>
+)</div>
+        </div>
+
+        <!-- Slot 2: Smartlink (Button) -->
+        <div id="ad-slot-2" class="ad-slot">
+           <!-- Smartlink এর জন্য আমরা একটা বাটন বানালাম -->
+           <a href="https://www.effectivecpmnetwork.com/tjvqs3a76c?key=b442de52b09aad84f223e8e003eaef2d" target="_blank" style="display:inline-block; padding:15px 30px; background:#ff9900; color:white; text-decoration:none; font-weight:bold; border-radius:5px;">
+             🔥 Click Here for Special Offer
+           </a>
+        </div>
+
+        <!-- Slot 3: Popunder -->
+        <div id="ad-slot-3" class="ad-slot">
+          <h3>Ad 3: Popunder Active</h3>
+          <!-- Popunder কোড সাধারণত হেড-এ থাকে, এখানে ডামি কন্টেন্ট -->
+          <div style="color:black;">(<script src="https://pl29667214.effectivecpmnetwork.com/f4/c6/97/f4c6971f1f773f60063a8bfcf35ec111.js"></script>
+)</div>
+        </div>
+
+        <!-- Slot 4: Native Banner -->
+        <div id="ad-slot-4" class="ad-slot">
+          <!-- Native Banner Code -->
+          <div style="width:300px; height:250px; background:#eee; color:black; display:flex; align-items:center; justify-content:center;"><script async="async" data-cfasync="false" src="https://pl29667215.effectivecpmnetwork.com/8843ad00dcb80ab24646fcc3ac02cf0c/invoke.js"></script>
+<div id="container-8843ad00dcb80ab24646fcc3ac02cf0c"></div>
+r</div>
+        </div>
+
+        <!-- Slot 5: Banner 300x250 -->
+        <div id="ad-slot-5" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : 'd32c0fb1fb2ba96818af9987796cac3d',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/d32c0fb1fb2ba96818af9987796cac3d/invoke.js"></script>
+
+        </div>
+
+        <!-- Slot 6: Banner 160x600 -->
+        <div id="ad-slot-6" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : '4bebb94b53dd75a6cfaf3cdb65bd3b24',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/4bebb94b53dd75a6cfaf3cdb65bd3b24/invoke.js"></script>
+
+        </div>
+
+        <!-- Slot 7: Banner 728x90 -->
+        <div id="ad-slot-7" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : '41886effcda65224ce42b04c1502bbe2',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/41886effcda65224ce42b04c1502bbe2/invoke.js"></script>
+
+        </div>
+
+        <!-- Slot 8: Banner 320x50 -->
+        <div id="ad-slot-8" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : '25823e49cb37e407074725b870501464',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/25823e49cb37e407074725b870501464/invoke.js"></script>
+
+        </div>
+
+        <!-- Slot 9: Banner 160x300 -->
+        <div id="ad-slot-9" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : '1d9e4dcf70b116e48bd2bfa454987cdc',
+    'format' : 'iframe',
+    'height' : 300,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/1d9e4dcf70b116e48bd2bfa454987cdc/invoke.js"></script>
+
+        </div>
+
+        <!-- Slot 10: Banner 468x60 -->
+        <div id="ad-slot-10" class="ad-slot">
+          <script>
+  atOptions = {
+    'key' : '9cdf43571a1f96b0c9e4d8c8e90f808c',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/9cdf43571a1f96b0c9e4d8c8e90f808c/invoke.js"></script>
+
+        </div>
+
+      </div>
+      <button class="ad-close-btn" id="closeBtn" onclick="closeAd()">Loading...</button>
+    </div>
+    <!-- ============================================ -->
+
+    <video id="iptv-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
+    <div class="current-playing-info">
+       <div class="current-title" id="main-title">চ্যানেল লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div style="padding:10px; color:#00a8ff; font-weight:bold; border-bottom:1px solid #333;">চ্যানেল লিস্ট</div>
+    <div id="channel-list" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+<script>
+  // প্লেয়ার সেটআপ
+  var player = videojs('iptv-player');
+  var playlistURL = "https://raw.githubusercontent.com/Rakib49/Rakibiptv/refs/heads/main/aynaott.m3u";
+  
+  // ============================================
+  // ৩. ১০টি অ্যাডের অটো-রোটেশন লজিক
+  // ============================================
+  var currentAdIndex = 1; // শুরু হবে ১ থেকে
+  var totalAds = 10;
+  var adOverlay = document.getElementById('ad-overlay');
+  var closeBtn = document.getElementById('closeBtn');
+
+  // প্রতি ১ মিনিট (60000ms) পর পর অ্যাড কল হবে
+  setInterval(function() {
+    rotateAd();
+  }, 60000); 
+
+  // প্রথমবার পেজ লোড হওয়ার ৫ সেকেন্ড পর প্রথম অ্যাড আসবে
+  setTimeout(function() {
+    rotateAd();
+  }, 5000);
+
+  function rotateAd() {
+    // ১. আগের সব স্লট হাইড করা
+    for (var i = 1; i <= totalAds; i++) {
+      document.getElementById('ad-slot-' + i).classList.remove('active-slot');
+    }
+
+    // ২. বর্তমান স্লট শো করা
+    document.getElementById('ad-slot-' + currentAdIndex).classList.add('active-slot');
+
+    // ৩. ওভারলে ওপেন করা
+    adOverlay.style.display = 'flex';
+    
+    // ৪. ক্লোজ বাটন রিসেট
+    closeBtn.classList.remove('active');
+    closeBtn.innerText = "Wait 5s...";
+
+    // ৫. ৫ সেকেন্ড কাউন্টডাউন
+    var timeLeft = 5;
+    var timer = setInterval(function() {
+      timeLeft--;
+      if(timeLeft <= 0) {
+        clearInterval(timer);
+        closeBtn.classList.add('active');
+        closeBtn.innerText = "Close Ad [X]";
+      } else {
+        closeBtn.innerText = "Wait " + timeLeft + "s...";
+      }
+    }, 1000);
+
+    // ৬. পরের বারের জন্য ইনডেক্স সেট করা (১-১০ এর মধ্যে ঘুরবে)
+    currentAdIndex++;
+    if (currentAdIndex > totalAds) {
+      currentAdIndex = 1; 
+    }
+  }
+
+  function closeAd() {
+    if(closeBtn.classList.contains('active')) {
+      adOverlay.style.display = 'none';
+    }
+  }
+  // ============================================
+
+  // চ্যানেল লোডিং (আগের কোড)
+  async function initPlayer() {
+    try {
+      const response = await fetch(playlistURL);
+      const text = await response.text();
+      // এখানে সিম্পল পার্সিং লজিক (সংক্ষিপ্ত)
+      const lines = text.split('\n');
+      const container = document.getElementById('channel-list');
+      let name = "";
+      lines.forEach((line, idx) => {
+        if(line.startsWith('#EXTINF:')) name = line.split(',')[1];
+        if(line.startsWith('http') && name) {
+          let div = document.createElement('div');
+          div.className = 'channel-item';
+          div.innerText = name;
+          let url = line.trim();
+          div.onclick = () => { player.src({src:url, type:'application/x-mpegURL'}); player.play(); };
+          container.appendChild(div);
+          if(container.children.length === 1) div.click();
+          name = "";
+        }
+      });
+    } catch (e) {}
+  }
+  initPlayer();
+</script>
+
+</body>
+</html>
