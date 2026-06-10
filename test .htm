@@ -1,378 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HR DIGITAL TV</title>
+  <title>ডায়নামিক আইপিটিভি প্লেয়ার</title>
   
-  <!-- Hls.js & FontAwesome -->
-  <script src="https://jsdelivr.net"></script>
-  <link rel="stylesheet" href="https://cloudflare.com"/>
-
+  <!-- Video.js CSS (সঠিক CDN লিঙ্ক) -->
+  <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+  
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
     body {
-      background: #0b0d13;
-      color: white;
-      overflow-x: hidden;
+      background-color: #11141a;
+      color: #ffffff;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
     }
-    /* HEADER */
-    .header {
-      background: #000;
-      padding: 15px;
-      text-align: center;
-      border-bottom: 3px solid #ff1a1a;
-    }
-    .header h1 {
-      font-size: 32px;
-      color: #ff1a1a;
-      text-shadow: 0 0 12px red;
-      letter-spacing: 2px;
-    }
-    
-    /* STICKY PLAYER WRAPPER */
-    .sticky-player-container {
-      position: -webkit-sticky;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: #0b0d13;
-      width: 100%;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-    }
-
-    /* PLAYER BOX */
-    .player-box {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
+    .main-container {
+      max-width: 1100px;
       margin: 0 auto;
-      background: black;
-    }
-    video {
-      width: 100%;
-      height: 400px;
-      background: black;
-      object-fit: contain;
-      display: block;
-    }
-    @media (max-width: 768px) {
-      video { height: 220px; }
-    }
-
-    /* CONTROLS */
-    .custom-controls {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       display: flex;
+      flex-direction: row;
       gap: 20px;
-      z-index: 999;
-      transition: opacity 0.4s ease;
-      opacity: 0;
-    }
-    .player-box:hover .custom-controls,
-    .player-box:active .custom-controls {
-      opacity: 1;
-    }
-    .control-btn {
-      width: 50px;
-      height: 50px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(255, 0, 0, 0.85);
-      color: white;
-      font-size: 18px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 0 15px rgba(255,0,0,0.6);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .control-btn:hover {
-      transform: scale(1.1);
-      background: red;
-    }
-
-    /* SEARCH */
-    .search-box {
-      padding: 15px;
-      max-width: 800px;
-      margin: 10px auto 0 auto;
-    }
-    .search-box input {
-      width: 100%;
-      padding: 14px 20px;
-      font-size: 18px;
-      border: 1px solid #333;
-      outline: none;
-      border-radius: 30px;
-      background: #161a24;
-      color: white;
-      transition: 0.3s;
-    }
-    .search-box input:focus {
-      border-color: #00d0ff;
-      box-shadow: 0 0 10px rgba(0,208,255,0.3);
-    }
-
-    /* CHANNEL GRID */
-    .channel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 15px;
-      padding: 15px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    /* CHANNEL CARD */
-    .channel {
-      background: #161a24;
+      background: #1b1f27;
+      padding: 20px;
       border-radius: 12px;
-      padding: 10px;
-      height: 110px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .player-section {
+      flex: 2;
+    }
+    .video-js {
+      width: 100% !important;
+      height: 450px !important;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .sidebar-section {
+      flex: 1;
+      background: #14171e;
+      border-radius: 8px;
+      padding: 15px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      border: 2px solid #222;
-      transition: 0.3s ease;
-      text-align: center;
+      height: 450px; /* প্লেয়ারের সমান উচ্চতা */
     }
-    .channel:hover {
-      transform: translateY(-5px);
-      border-color: #00d0ff;
-      box-shadow: 0 5px 15px rgba(0,208,255,0.4);
-    }
-    .channel img {
-      width: 100%;
-      height: 60px;
-      object-fit: contain;
-      margin-bottom: 5px;
-    }
-    .channel-title {
-      font-size: 12px;
-      color: #ccc;
+    .sidebar-title {
+      font-size: 18px;
       font-weight: bold;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 5px;
+      color: #007bff;
+    }
+    .channel-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 5px;
+    }
+    /* স্ক্রোলবার ডিজাইন */
+    .channel-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .channel-list::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+    /* চ্যানেল আইটেম ডিজাইন */
+    .channel-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #1f2430;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    .channel-item:hover {
+      background: #2a3142;
+      border-color: #007bff;
+    }
+    .channel-item.active {
+      background: #007bff;
+      color: #fff;
+    }
+    .channel-icon {
+      width: 30px;
+      height: 30px;
+      background: #333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .channel-name {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
-      width: 100%;
     }
-    /* ACTIVE CHANNEL */
-    .active {
-      border: 2px solid #00ff84 !important;
-      box-shadow: 0 0 15px rgba(0,255,132,0.6);
-      background: #1c2e24;
-    }
-    .active .channel-title {
-      color: #00ff84;
+    #loading-msg {
+      text-align: center;
+      color: #aaa;
+      margin-top: 20px;
     }
 
-    /* LIVE COUNTER */
-    .live-counter {
-      position: fixed;
-      bottom: 25px;
-      left: 25px;
-      z-index: 9999;
-      background: rgba(22, 26, 36, 0.9);
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.6;
-      color: white;
-      backdrop-filter: blur(8px);
-      border: 1px solid #333;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    /* মোবাইল রেসপনসিভ */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      .video-js {
+        height: 250px !important;
+      }
+      .sidebar-section {
+        height: 300px;
+      }
     }
-    /* FOOTER */
-    .footer {
-      text-align: center;
-      padding: 25px;
-      font-size: 16px;
-      border-top: 1px solid #222;
-      margin-top: 40px;
-      background: #000;
-    }
-    .footer span { color: #ff1a1a; }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>HR DIGITAL TV</h1>
-</div>
+<div class="main-container">
+  
+  <!-- ভিডিও প্লেয়ার -->
+  <div class="player-section">
+    <video id="tv-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup="{}">
+      <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
+    </video>
+  </div>
 
-<!-- LIVE COUNTER -->
-<div class="live-counter" id="liveCounter">
-  🟢 Live Users : <span id="liveUsers" style="color:#00ff84; font-weight:bold;">0</span><br>
-  👁 Total Views : <span id="totalViews" style="color:#00d0ff; font-weight:bold;">0</span>
-</div>
-
-<!-- STICKY CONTAINER FOR PLAYER -->
-<div class="sticky-player-container">
-  <div class="player-box">
-    <video id="video" autoplay playsinline controls></video>
-    
-    <div class="custom-controls">
-      <button class="control-btn" onclick="prevChannel()">⏮</button>
-      <button class="control-btn" onclick="togglePlay()">⏯</button>
-      <button class="control-btn" onclick="nextChannel()">⏭</button>
+  <!-- চ্যানেল লিস্ট -->
+  <div class="sidebar-section">
+    <div class="sidebar-title">লাইভ চ্যানেল</div>
+    <div class="channel-list" id="channel-list">
+      <div id="loading-msg">চ্যানেল লোড হচ্ছে...</div>
     </div>
   </div>
+
 </div>
 
-<!-- SEARCH -->
-<div class="search-box">
-  <input type="text" id="search" placeholder="Search Channel..." onkeyup="searchChannels()">
-</div>
-
-<!-- CHANNELS GRID -->
-<div class="channel-grid" id="channelGrid"></div>
-
-<div class="footer">
-  © 2026 <span>HR DIGITAL TV</span>
-</div>
+<!-- Video.js JS (সঠিক CDN লিঙ্ক) -->
+<script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
 
 <script>
-  // এখানে একটি সচল ও ওপেন সোর্স স্যাম্পল M3U প্লেলিস্ট ব্যবহার করা হয়েছে টেস্ট করার জন্য
-  const playlist = 'https://raw.githubusercontent.com/Rakib49/Rakibiptv/refs/heads/main/aynaott.m3u';
-  
-  let channels = [];
-  let currentIndex = 0;
-  let hls = null; 
+  // ১. প্লেয়ার সেটআপ
+  var player = videojs('tv-player');
 
-  const video = document.getElementById('video');
+  // ২. আপনার M3U লিঙ্ক
+  const m3uUrl = "https://raw.githubusercontent.com/Rakib49/Rakibiptv/refs/heads/main/aynaott.m3u";
 
-  /* LOAD PLAYLIST */
-  fetch(playlist)
-    .then(r => r.text())
-    .then(data => {
-      const lines = data.split('\n');
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].startsWith('#EXTINF')) {
-          const info = lines[i];
-          const url = lines[i + 1] ? lines[i + 1].trim() : '';
-          
-          // চ্যানেল নাম নিখুঁতভাবে পার্স করার লজিক
-          let name = 'Unknown Channel';
-          if (info.includes(',')) {
-            name = info.substring(info.lastIndexOf(',') + 1).trim();
-          }
+  // ৩. M3U ফাইল থেকে ডাটা আনার ফাংশন
+  async function fetchChannels() {
+    try {
+      const response = await fetch(m3uUrl);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const data = await response.text();
+      parseM3U(data);
+    } catch (error) {
+      console.error("Error loading playlist:", error);
+      document.getElementById('loading-msg').innerText = "চ্যানেল লোড করা যায়নি। দয়া করে ইন্টারনেট কানেকশন চেক করুন।";
+    }
+  }
 
-          // লোগো খোঁজার লজিক
-          let logo = '';
-          const match = info.match(/tvg-logo="(.*?)"/);
-          if (match && match[1]) { 
-            logo = match[1]; 
-          }
+  // ৪. M3U টেক্সট পার্স (Parse) করার ফাংশন
+  function parseM3U(m3uText) {
+    const lines = m3uText.split('\n');
+    const container = document.getElementById('channel-list');
+    container.innerHTML = ""; // লোডিং মেসেজ ডিলিট
 
-          if(url.startsWith('http')) {
-            channels.push({ name: name, url: url, logo: logo });
-          }
+    let currentName = "";
+    let channelCount = 0;
+
+    lines.forEach((line) => {
+      line = line.trim();
+      
+      // লাইনে যদি নাম থাকে (#EXTINF)
+      if (line.startsWith('#EXTINF:')) {
+        // নামের শেষের অংশটুকু নেওয়া (কমার পরে)
+        let parts = line.split(',');
+        currentName = parts[parts.length - 1] || "অজানা চ্যানেল";
+      }
+      // লাইনে যদি লিঙ্ক থাকে (http)
+      else if (line.startsWith('http')) {
+        channelCount++;
+        createChannelItem(channelCount, currentName, line, container);
+        
+        // প্রথম চ্যানেলটি অটোমেটিক লোড করা
+        if (channelCount === 1) {
+          playStream(line);
+          // প্রথম আইটেমকে একটিভ দেখানো হবে একটু পরে (DOM তৈরির পর)
+          setTimeout(() => {
+            const firstItem = container.querySelector('.channel-item');
+            if(firstItem) firstItem.classList.add('active');
+          }, 100);
         }
       }
-
-      // চ্যানেল লিস্ট গ্রিডে পাঠানো
-      renderChannels();
-      
-      // প্রথম চ্যানেল অটো প্লে করা
-      if (channels.length > 0) {
-        playChannel(0);
-      }
-    }).catch(err => {
-      console.error("প্লেলিস্ট ফাইল পড়তে সমস্যা হচ্ছে:", err);
-      document.getElementById('channelGrid').innerHTML = '<p style="text-align:center; width:100%; color:red; padding:20px;">প্লেলিস্ট ফাইলটি লোড করা যায়নি!</p>';
     });
 
-  /* RENDER CHANNELS */
-  function renderChannels() {
-    const grid = document.getElementById('channelGrid');
-    grid.innerHTML = '';
-
-    if (channels.length === 0) {
-      grid.innerHTML = '<p style="text-align:center; width:100%; color:red; padding:20px;">কোনো চ্যানেল পাওয়া যায়নি!</p>';
-      return;
+    if (channelCount === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:10px;">কোনো চ্যানেল পাওয়া যায়নি</div>';
     }
+  }
 
-    channels.forEach((ch, index) => {
-      const div = document.createElement('div');
-      div.className = 'channel';
-      div.setAttribute('data-index', index);
-
-      // লোগো থাকলে ইমেজ দেখাবে, না থাকলে সুন্দর করে আইকন ও নাম বসবে
-      const imgHTML = ch.logo ? `<img src="${ch.logo}" onerror="this.style.display='none'">` : '<i class="fa-solid : fa-tv" style="font-size:24px; color:#00d0ff; margin-bottom:8px;"></i>';
+  // ৫. লিস্ট আইটেম তৈরি করা
+  function createChannelItem(index, name, url, container) {
+    const div = document.createElement('div');
+    div.className = 'channel-item';
+    div.innerHTML = `
+      <div class="channel-icon">${index}</div>
+      <div class="channel-name">${name}</div>
+    `;
+    
+    // ক্লিক করলে প্লে হবে
+    div.addEventListener('click', function() {
+      // আগের একটিভ ক্লাস সরানো
+      document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+      // বর্তমানটাতে ক্লাস যুক্ত করা
+      div.classList.add('active');
       
-      div.innerHTML = `
-        ${imgHTML}
-        <div class="channel-title">${ch.name}</div>
-      `;
-
-      div.onclick = () => playChannel(index);
-      grid.appendChild(div);
+      playStream(url);
     });
+
+    container.appendChild(div);
   }
 
-  /* PLAY CHANNEL */
-  function playChannel(index) {
-    if(channels.length === 0) return;
-    currentIndex = index;
-    const channel = channels[index];
-
-    if (hls) {
-      hls.destroy();
-    }
-
-    if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(channel.url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.play().catch(e => console.log("অটো-প্লে ব্রাউজার দ্বারা ব্লকড।"));
-      });
-    } 
-    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = channel.url;
-      video.play().catch(e => console.log("অটো-প্লে ব্রাউজার দ্বারা ব্লকড।"));
-    }
-
-    // একটিভ মার্কিং সিএসএস আপডেট
-    document.querySelectorAll('.channel').forEach(el => el.classList.remove('active'));
-    const activeCard = document.querySelector(`.channel[data-index="${index}"]`);
-    if(activeCard) activeCard.classList.add('active');
+  // ৬. ভিডিও প্লে করার ফাংশন
+  function playStream(url) {
+    player.src({
+      src: url,
+      type: 'application/x-mpegURL'
+    });
+    player.play().catch(e => console.log("Auto-play prevented by browser"));
   }
 
-  /* NEXT & PREV */
-  function nextChannel() {
-    currentIndex = (currentIndex + 1) % channels.length;
-    playChannel(currentIndex);
-  }
+  // স্ক্রিপ্ট রান করা
+  fetchChannels();
 
-  function prevChannel() {
-    currentIndex = (currentIndex - 1 + channels.length) % channels.length;
-    playChannel(currentIndex);
-  }
+</script>
 
-  /* PLAY / PAUSE */
-  function togglePlay() {
-    if (video.paused) { video.play(); } 
-    else { video.pause(); }
-  }
-
-  /* SEARCH CHANNELS */
-  function searchChannels() {
-    const input = document.getElementById('search').value.toLowerCase();
-    const cards = document.querySelectorAll('.channel');
-
-    cards.forEach(card => {
-      const index = card.getAttribute('data-index');
-      const name = channels[index].name.toLowerCase();
-      if (name.includes(input)) {
+</body>
+</html>
