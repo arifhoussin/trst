@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR DIGITAL TV</title>
+  
+  <!-- Hls.js & FontAwesome -->
+  <script src="https://jsdelivr.net"></script>
+  <link rel="stylesheet" href="https://cloudflare.com"/>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #0b0d13;
+      color: white;
+      overflow-x: hidden;
+    }
+    /* HEADER */
+    .header {
+      background: #000;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 3px solid #ff1a1a;
+    }
+    .header h1 {
+      font-size: 32px;
+      color: #ff1a1a;
+      text-shadow: 0 0 12px red;
+      letter-spacing: 2px;
+    }
+    
+    /* STICKY PLAYER WRAPPER */
+    .sticky-player-container {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #0b0d13;
+      width: 100%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+    }
+
+    /* PLAYER BOX */
+    .player-box {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      background: black;
+    }
+    video {
+      width: 100%;
+      height: 400px;
+      background: black;
+      object-fit: contain;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      video { height: 220px; }
+    }
+
+    /* CONTROLS */
+    .custom-controls {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 20px;
+      z-index: 999;
+      transition: opacity 0.4s ease;
+      opacity: 0;
+    }
+    .player-box:hover .custom-controls,
+    .player-box:active .custom-controls {
+      opacity: 1;
+    }
+    .control-btn {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 0, 0, 0.85);
+      color: white;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 15px rgba(255,0,0,0.6);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .control-btn:hover {
+      transform: scale(1.1);
+      background: red;
+    }
+
+    /* SEARCH */
+    .search-box {
+      padding: 15px;
+      max-width: 800px;
+      margin: 10px auto 0 auto;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 18px;
+      border: 1px solid #333;
+      outline: none;
+      border-radius: 30px;
+      background: #161a24;
+      color: white;
+      transition: 0.3s;
+    }
+    .search-box input:focus {
+      border-color: #00d0ff;
+      box-shadow: 0 0 10px rgba(0,208,255,0.3);
+    }
+
+    /* CHANNEL GRID */
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 15px;
+      padding: 15px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    /* CHANNEL CARD */
+    .channel {
+      background: #161a24;
+      border-radius: 12px;
+      padding: 10px;
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border: 2px solid #222;
+      transition: 0.3s ease;
+      text-align: center;
+    }
+    .channel:hover {
+      transform: translateY(-5px);
+      border-color: #00d0ff;
+      box-shadow: 0 5px 15px rgba(0,208,255,0.4);
+    }
+    .channel img {
+      width: 100%;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 5px;
+    }
+    .channel-title {
+      font-size: 12px;
+      color: #ccc;
+      font-weight: bold;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+    /* ACTIVE CHANNEL */
+    .active {
+      border: 2px solid #00ff84 !important;
+      box-shadow: 0 0 15px rgba(0,255,132,0.6);
+      background: #1c2e24;
+    }
+    .active .channel-title {
+      color: #00ff84;
+    }
+
+    /* LIVE COUNTER */
+    .live-counter {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      z-index: 9999;
+      background: rgba(22, 26, 36, 0.9);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: white;
+      backdrop-filter: blur(8px);
+      border: 1px solid #333;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 25px;
+      font-size: 16px;
+      border-top: 1px solid #222;
+      margin-top: 40px;
+      background: #000;
+    }
+    .footer span { color: #ff1a1a; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>HR DIGITAL TV</h1>
+</div>
+
+<!-- LIVE COUNTER -->
+<div class="live-counter" id="liveCounter">
+  🟢 Live Users : <span id="liveUsers" style="color:#00ff84; font-weight:bold;">0</span><br>
+  👁 Total Views : <span id="totalViews" style="color:#00d0ff; font-weight:bold;">0</span>
+</div>
+
+<!-- STICKY CONTAINER FOR PLAYER -->
+<div class="sticky-player-container">
+  <div class="player-box">
+    <video id="video" autoplay playsinline controls></video>
+    
+    <div class="custom-controls">
+      <button class="control-btn" onclick="prevChannel()">⏮</button>
+      <button class="control-btn" onclick="togglePlay()">⏯</button>
+      <button class="control-btn" onclick="nextChannel()">⏭</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input type="text" id="search" placeholder="Search Channel..." onkeyup="searchChannels()">
+</div>
+
+<!-- CHANNELS GRID -->
+<div class="channel-grid" id="channelGrid"></div>
+
+<div class="footer">
+  © 2026 <span>HR DIGITAL TV</span>
+</div>
+
+<script>
+  // এখানে একটি সচল ও ওপেন সোর্স স্যাম্পল M3U প্লেলিস্ট ব্যবহার করা হয়েছে টেস্ট করার জন্য
+  const playlist = 'https://github.io';
+  
+  let channels = [];
+  let currentIndex = 0;
+  let hls = null; 
+
+  const video = document.getElementById('video');
+
+  /* LOAD PLAYLIST */
+  fetch(playlist)
+    .then(r => r.text())
+    .then(data => {
+      const lines = data.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('#EXTINF')) {
+          const info = lines[i];
+          const url = lines[i + 1] ? lines[i + 1].trim() : '';
+          
+          // চ্যানেল নাম নিখুঁতভাবে পার্স করার লজিক
+          let name = 'Unknown Channel';
+          if (info.includes(',')) {
+            name = info.substring(info.lastIndexOf(',') + 1).trim();
+          }
+
+          // লোগো খোঁজার লজিক
+          let logo = '';
+          const match = info.match(/tvg-logo="(.*?)"/);
+          if (match && match[1]) { 
+            logo = match[1]; 
+          }
+
+          if(url.startsWith('http')) {
+            channels.push({ name: name, url: url, logo: logo });
+          }
+        }
+      }
+
+      // চ্যানেল লিস্ট গ্রিডে পাঠানো
+      renderChannels();
+      
+      // প্রথম চ্যানেল অটো প্লে করা
+      if (channels.length > 0) {
+        playChannel(0);
+      }
+    }).catch(err => {
+      console.error("প্লেলিস্ট ফাইল পড়তে সমস্যা হচ্ছে:", err);
+      document.getElementById('channelGrid').innerHTML = '<p style="text-align:center; width:100%; color:red; padding:20px;">প্লেলিস্ট ফাইলটি লোড করা যায়নি!</p>';
+    });
+
+  /* RENDER CHANNELS */
+  function renderChannels() {
+    const grid = document.getElementById('channelGrid');
+    grid.innerHTML = '';
+
+    if (channels.length === 0) {
+      grid.innerHTML = '<p style="text-align:center; width:100%; color:red; padding:20px;">কোনো চ্যানেল পাওয়া যায়নি!</p>';
+      return;
+    }
+
+    channels.forEach((ch, index) => {
+      const div = document.createElement('div');
+      div.className = 'channel';
+      div.setAttribute('data-index', index);
+
+      // লোগো থাকলে ইমেজ দেখাবে, না থাকলে সুন্দর করে আইকন ও নাম বসবে
+      const imgHTML = ch.logo ? `<img src="${ch.logo}" onerror="this.style.display='none'">` : '<i class="fa-solid : fa-tv" style="font-size:24px; color:#00d0ff; margin-bottom:8px;"></i>';
+      
+      div.innerHTML = `
+        ${imgHTML}
+        <div class="channel-title">${ch.name}</div>
+      `;
+
+      div.onclick = () => playChannel(index);
+      grid.appendChild(div);
+    });
+  }
+
+  /* PLAY CHANNEL */
+  function playChannel(index) {
+    if(channels.length === 0) return;
+    currentIndex = index;
+    const channel = channels[index];
+
+    if (hls) {
+      hls.destroy();
+    }
+
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(channel.url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play().catch(e => console.log("অটো-প্লে ব্রাউজার দ্বারা ব্লকড।"));
+      });
+    } 
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = channel.url;
+      video.play().catch(e => console.log("অটো-প্লে ব্রাউজার দ্বারা ব্লকড।"));
+    }
+
+    // একটিভ মার্কিং সিএসএস আপডেট
+    document.querySelectorAll('.channel').forEach(el => el.classList.remove('active'));
+    const activeCard = document.querySelector(`.channel[data-index="${index}"]`);
+    if(activeCard) activeCard.classList.add('active');
+  }
+
+  /* NEXT & PREV */
+  function nextChannel() {
+    currentIndex = (currentIndex + 1) % channels.length;
+    playChannel(currentIndex);
+  }
+
+  function prevChannel() {
+    currentIndex = (currentIndex - 1 + channels.length) % channels.length;
+    playChannel(currentIndex);
+  }
+
+  /* PLAY / PAUSE */
+  function togglePlay() {
+    if (video.paused) { video.play(); } 
+    else { video.pause(); }
+  }
+
+  /* SEARCH CHANNELS */
+  function searchChannels() {
+    const input = document.getElementById('search').value.toLowerCase();
+    const cards = document.querySelectorAll('.channel');
+
+    cards.forEach(card => {
+      const index = card.getAttribute('data-index');
+      const name = channels[index].name.toLowerCase();
+      if (name.includes(input)) {
